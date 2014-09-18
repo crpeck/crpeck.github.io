@@ -1,1 +1,166 @@
-Hello World
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Crpeck.github.io : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Crpeck.github.io</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/crpeck">View on GitHub</a>
+
+          <h1 id="project_title">Crpeck.github.io</h1>
+          <h2 id="project_tagline"></h2>
+
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a name="materials-for-mabug-2014-presentation" class="anchor" href="#materials-for-mabug-2014-presentation"><span class="octicon octicon-link"></span></a>Materials for MABUG 2014 Presentation</h2>
+
+<h3>
+<a name="title-automated-build-and-deployment-of-tomcat-apps-or-how-ops-can-get-out-of-the-way-of-development" class="anchor" href="#title-automated-build-and-deployment-of-tomcat-apps-or-how-ops-can-get-out-of-the-way-of-development"><span class="octicon octicon-link"></span></a>Title: Automated Build and Deployment of Tomcat Apps, <del>or, How Ops can get out of the way of development</del>
+</h3>
+
+<ul>
+<li>Chris Peck</li>
+<li>College of William and Mary</li>
+<li>Date: 9/29/2014</li>
+<li>Session ID: 8743</li>
+</ul><h4>
+<a name="intro" class="anchor" href="#intro"><span class="octicon octicon-link"></span></a>Intro</h4>
+
+<p>Last Fall, the IT Unix "Ops" team at William and Mary implemented a new tool named Jenkins for managing software projects.  Eventually, we were able to to talk some Developers into using this tool for the development of their Grails Apps.  I’ll briefly discuss what Jenkins is and how to get it (it’s free as in beer), as well as what the IT Unix Team uses it for, then I’ll take a deep-dive into using it for developing and deploying Apps to Tomcat Servers.</p>
+
+<p>This presentation will describe the journey to a faster, less-painful deployment process for Grails (or any other) Apps to a Tomcat server.  I will describe the processes in place before, how we got to where we are, and the tools we used to implement the current environment.</p>
+
+<p>As I began developing this presentation, our team was informed that Banner XE would be deployed to Linux servers (which is what our team “does”).  I had attended MABUG last Fall to learn more about what XE was, the development strategy and had read how Ellucian appeared to be using technologies similar to what we had focused on using as we began to rollout our “next-generation” of servers &amp; services in <em>nixland</em>. I was intrigued to say the least.  I had a talk over some beers at the pig roast with Ed Hauser &amp; a “tech” person from Ellucian, and, we seemed in sync conceptually on this. We are planning on using the same processes described here to deploy Banner XE Apps as they become available.</p>
+
+<h4>
+<a name="pre-jenkins" class="anchor" href="#pre-jenkins"><span class="octicon octicon-link"></span></a>Pre-Jenkins</h4>
+
+<p>In the pre-Jenkins world, Grails warfiles were built on the developers desktop, then copied to a network "drive". They would then contact the Ops team who would copy it from the network drive to the Tomcat server, put it in place and restart the service. This led to a lot of pain points, what version of grails and java was being used, etc. The age-old "Well, it worked on my Desktop" statement was rather common. Since so much of this was manual, this process was fragile, with many points of possible failure. Since Developers depended on Ops for deployment it was a very slow process</p>
+
+<h4>
+<a name="post-jenkins" class="anchor" href="#post-jenkins"><span class="octicon octicon-link"></span></a>Post-Jenkins</h4>
+
+<p>In the post-Jenkins world, well, Jenkins does it all for us, with some help from some other tools.  When code is committed to our local source code repository, Jenkins will automatically build the War files (in the same environment as the Tomcat servers).  If Jenkins can build the App successfully, the following occurs:
+For the Development Environment the WAR file is automatically deployed to the Tomcat server. 
+For the Production Environment, since Ops are the only ones allowed to deploy to PROD, then someone from Ops tells Jenkins to deploy the App. 
+Since the process is automated, the chance of failure is minimized. Developers are happy, and, Ops are ecstatic.</p>
+
+<h4>
+<a name="demonstration" class="anchor" href="#demonstration"><span class="octicon octicon-link"></span></a>Demonstration</h4>
+
+<p>During the creation of this presentation, I created a "Vagrantfile" for demonstrating how this is done. This Vagrantfile will spin up an Ubuntu 14.04 server VM running Tomcat and Jenkins. It also installs a simple source tree using git to use as an example. This git source tree contains a post-commit hook into Jenkins to kick off the building of a warfile based on it, and, then auto-reploying it to the Tomcat server.</p>
+
+<p>If you would like to use this Vagrantfile to play with, head on over to <a href="https://github.com/crpeck/vagrant-mabug">https://github.com/crpeck/vagrant-mabug</a> and <em>git</em> it.</p>
+
+<p>I also created a real simple sourcetree that prints out <em>hello world</em> and get's installed into /usr/local/src/hello-world on the Vagrantbox VM. This is the source tree mentioned above, it's located at <a href="https://github.com/crpeck/hello-world">https://github.com/crpeck/hello-world</a></p>
+
+<h4>
+<a name="running-the-demonstration" class="anchor" href="#running-the-demonstration"><span class="octicon octicon-link"></span></a>Running the Demonstration</h4>
+
+<p>Running through this assumes the following:</p>
+
+<ul>
+<li>You've installed VirtualBox</li>
+<li>You've installed Vagrant</li>
+<li>You've installed git
+Once you have those requirements out of the way, here's a quick walk through.</li>
+</ul><pre><code>Open a terminal window
+mkdir mabugdemo
+cd mabugdemo
+git clone https://github.com/crpeck/vagrant-mabug.git
+cd vagrant-mabug
+vagrant up
+
+Assuming all went as planned, you should see this as Vagrant brings up the machine - before the "Provisioning" section:
+    default: Adapter 1: nat
+==&gt; default: Forwarding ports...
+    default: 8080 =&gt; 8080 (adapter 1)
+    default: 8090 =&gt; 8090 (adapter 1)
+    default: 22 =&gt; NNNN (adapter 1) (this doesn't matter)
+
+and, this at the end:
+
+Jenkins is available at http://localhost:8090
+Tomcat manager at http://localhost:8080/manager
+  user=manager, password=12345
+</code></pre>
+
+<p>At this point if you bring up a browser and point it at http://localhost:8090 you should see the Jenkins Main Screeen.
+The first thing we need to do is build the hello-world warfile and install it in Tomcat.  Go ahead and Click on the <em>hello-world</em> listed under Name in the middle of the screen.
+Click on <em>Build Now</em> in the Left Column, this will build the warfile and install it. Assuming it went ok (you do have a Blue Ball and not a Red one, right?  Click on http://localhost:8080 and you should see:</p>
+
+<pre><code>It works !
+
+Click here to see the hello-world example
+</code></pre>
+
+<h4>
+<a name="links-to-tools-used" class="anchor" href="#links-to-tools-used"><span class="octicon octicon-link"></span></a>Links to Tools Used</h4>
+
+<ul>
+<li>Jenkins <a href="https://jenkins-ci.org">https://jenkins-ci.org</a>
+</li>
+<li>git <a href="https://git-scm.org">https://git-scm.org</a>
+</li>
+<li>Vagrant <a href="https://www.vagrantup.com">https://www.vagrantup.com</a> </li>
+<li>VirtualBox <a href="https://www.virtualbox.org">https://www.virtualbox.org</a>
+</li>
+<li>Puppet: <a href="http://puppetlabs.com">http://puppetlabs.com</a> Configuration Management</li>
+<li>Packer <a href="http://www.packer.io/">http://www.packer.io/</a> We use it to build our VM images</li>
+</ul><h4>
+<a name="links-to-other-great-stuff" class="anchor" href="#links-to-other-great-stuff"><span class="octicon octicon-link"></span></a>Links to Other Great Stuff</h4>
+
+<ul>
+<li>U.S. Digital Services Playbook <a href="https://playbook.cio.gov/">https://playbook.cio.gov/</a>
+</li>
+<li>DevOps <a href="http://devops.com">http://devops.com</a>
+</li>
+<li>FlowCon Conference http://<a href="http://flowcon.org/">http://flowcon.org/</a>
+</li>
+<li>O'Reilly Conference <a href="http://velocityconf.com/">http://velocityconf.com/</a>
+</li>
+<li>IT Revolution Press <a href="http://itrevolution.com/">http://itrevolution.com/</a>
+</li>
+</ul><h4>
+<a name="written-material-aka-books" class="anchor" href="#written-material-aka-books"><span class="octicon octicon-link"></span></a>Written Material aka Books</h4>
+
+<ul>
+<li>The Phoenix Project: A Novel About IT, DevOps, and Helping Your Business Win, Gene Kim, Kevin Behr, George Spafford</li>
+<li>Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation, Jez Humble and David Farley</li>
+</ul><h4>
+<a name="links-to-ellucian-sites" class="anchor" href="#links-to-ellucian-sites"><span class="octicon octicon-link"></span></a>Links to Ellucian Sites</h4>
+
+<ul>
+<li>Demo of Using Ellucian's git repo <a href="http://udca.sungardhe.com/cps/WBT/XE_Webinars/using_git_repos_screencast.mov">http://udca.sungardhe.com/cps/WBT/XE_Webinars/using_git_repos_screencast.mov</a>
+</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
