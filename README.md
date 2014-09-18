@@ -74,21 +74,24 @@ Click here to see the hello-world example
 
 #####Testing the git-commit hook
 To test that the post commit hook from git to Jenkins is working, you will need to ssh into the VagrantBox and edit the file that displays Hello World. From the terminal window used to do a *vagrant up* in:
-* vagrant ssh
-* cd /usr/local/src/hello-world/webapp
-* vi index.jsp
-* change Hello World to something else
-* wq
-* git commit -am 'changed output to something else'
+~~~
+vagrant ssh
+cd /usr/local/src/hello-world/webapp
+vi index.jsp
+change Hello World to something else
+:wq
+git commit -am 'changed output to something else'
 
 At this point the Jenkins page should show a Build Job kicking off for the hello-world project (bottom of the left column).  Note that you can display the console output of the build process by clicking on the Job and selecting Console Output. Once it's finished, if you refresh the Hello World browser window it should display the *something else* you entered above.
 
-The contents of the post commit hook are:
+Here's the contents of the post commit hook:
 ~~~
 #!/bin/bash
 # post commit hook to ping Jenkins to rebuild & redeploy
 curl -X POST http://localhost:8090/job/hello-world/build
 ~~~
+
+Just a simple curl to ping Jenkins that it needs to build the hello-world project.  You're git server should have a configuration setting where you can do the same thing, we use http://gitlab.com as our local gitserver.
 
 ####Links to Tools Used
 * Jenkins https://jenkins-ci.org
